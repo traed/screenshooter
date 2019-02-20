@@ -1,1 +1,2 @@
-# screenshooter
+# Screenshooter
+Coding challenge for Detectify
