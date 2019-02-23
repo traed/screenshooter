@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/url"
-	"os"
 	"sync"
 
 	"../../pkg/capturer"
@@ -11,11 +11,14 @@ import (
 )
 
 func main() {
-	args := os.Args[1:]
+	path := flag.String("p", "../uploads", "The place where screenshots are saved.")
+	flag.Parse()
+
 	var wg sync.WaitGroup
 	browser := chrome.NewChrome()
+	browser.SetScreenshotPath(*path)
 
-	for _, arg := range args {
+	for _, arg := range flag.Args() {
 		u, err := url.ParseRequestURI(arg)
 		if err != nil {
 			log.Print("Invalid URL specified")
