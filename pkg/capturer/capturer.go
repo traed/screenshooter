@@ -15,14 +15,14 @@ import (
 	"github.com/parnurzeal/gorequest"
 )
 
-//Capturer -
+//Capturer - Struct that captures screenshots
 type Capturer struct {
 	URL     *url.URL
 	Browser *chrome.Chrome
 	WG      *sync.WaitGroup
 }
 
-// Execute -
+// Execute - Execute the screenshot capture
 func (c *Capturer) Execute() {
 	defer c.WG.Done()
 
@@ -44,7 +44,6 @@ func (c *Capturer) Execute() {
 	fname := safeFileName(c.URL.String()) + ".png"
 	dest := filepath.Join(c.Browser.ScreenshotPath, fname)
 
-	// Screenshot the URL
 	c.Browser.ScreenshotURL(finalURL, dest)
 	log.Printf("Saved screenshot to %s", dest)
 }
