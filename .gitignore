@@ -1,5 +1,10 @@
 # Workspace
 .DS_Store
+.vscode
+bin
+
+# Deps
+node_modules
 
 # Binaries for programs and plugins
 *.exe
