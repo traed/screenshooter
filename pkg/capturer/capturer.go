@@ -1,7 +1,6 @@
 package capturer
 
 import (
-	"crypto/tls"
 	"log"
 	"net/url"
 	"path/filepath"
@@ -29,7 +28,6 @@ func (c *Capturer) Execute() {
 	request := gorequest.
 		New().
 		Timeout(time.Duration(c.Browser.ChromeTimeout)*time.Second).
-		TLSClientConfig(&tls.Config{InsecureSkipVerify: true}).
 		Set("User-Agent", c.Browser.UserAgent)
 
 	resp, _, errs := request.Get(c.URL.String()).End()
@@ -45,7 +43,6 @@ func (c *Capturer) Execute() {
 	dest := filepath.Join(c.Browser.ScreenshotPath, fname)
 
 	c.Browser.ScreenshotURL(finalURL, dest)
-	log.Printf("Saved screenshot to %s", dest)
 }
 
 func safeFileName(str string) string {

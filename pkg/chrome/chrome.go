@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -66,29 +65,11 @@ func (chrome *Chrome) ScreenshotURL(targetURL *url.URL, destination string) {
 		chromeArguments = append(chromeArguments, "--no-sandbox")
 	}
 
-	if targetURL.Scheme == "https" {
-		originalPath := targetURL.Path
-		proxy := forwardingProxy{targetURL: targetURL}
+	chromeArguments = append(chromeArguments, targetURL.String())
 
-		// Give the proxy a few moments to start up.
-		time.Sleep(500 * time.Millisecond)
-
-		if err := proxy.start(); err != nil {
-			log.Print("Failed to start proxy for HTTPS request")
-			return
-		}
-
-		// Update the URL scheme back to http, the proxy will handle the SSL
-		proxyURL, _ := url.Parse("http://localhost:" + strconv.Itoa(proxy.port) + "/")
-		proxyURL.Path = originalPath
-
-		chromeArguments = append(chromeArguments, "--allow-insecure-localhost")
-		chromeArguments = append(chromeArguments, proxyURL.String())
-
-		defer proxy.stop()
-	} else {
-		// Finally add the url to screenshot
-		chromeArguments = append(chromeArguments, targetURL.String())
+	if targetURL.Scheme != "https" {
+		log.Print("Skipping non-encrypted URLs.")
+		return
 	}
 
 	// Get a context to run the command in
