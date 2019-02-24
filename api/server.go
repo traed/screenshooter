@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -13,15 +14,21 @@ import (
 type Server struct {
 	httpServer *http.Server
 	router     chi.Router
-	savePath   string
+	SavePath   string
 }
 
 // Start - Starts the Server
-func (s *Server) Start() {
-	s.savePath = "../uploads"
+func (s *Server) Start(addr string) {
 	s.router = chi.NewRouter()
 	s.routes()
-	s.httpServer = &http.Server{Addr: ":8080", Handler: s.router}
+	s.httpServer = &http.Server{Addr: addr, Handler: s.router}
+
+	if s.SavePath == "" {
+		log.Printf("SavePath not set. Defaulting to %s", os.TempDir())
+		s.SavePath = os.TempDir()
+	} else {
+		log.Printf("SavePath is %s", s.SavePath)
+	}
 
 	log.Printf("Server ready on %s", s.httpServer.Addr)
 	err := s.httpServer.ListenAndServe()

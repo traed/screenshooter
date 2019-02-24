@@ -72,7 +72,7 @@ func (s *Server) handleTakeScreenshot() http.HandlerFunc {
 				return
 			}
 
-			capturer := capturer.NewCapturer(s.savePath, url)
+			capturer := capturer.NewCapturer(s.SavePath, url)
 			go capturer.Execute()
 		}
 
