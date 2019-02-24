@@ -2,6 +2,7 @@ package capturer
 
 import (
 	"log"
+	"net/http"
 	"net/url"
 	"path/filepath"
 	"regexp"
@@ -9,8 +10,6 @@ import (
 	"time"
 
 	"../chrome"
-
-	"github.com/parnurzeal/gorequest"
 )
 
 //Capturer - Struct that captures screenshots
@@ -35,16 +34,20 @@ func NewCapturer(imagePath string, url *url.URL) Capturer {
 
 // Execute - Execute the screenshot capture
 func (c *Capturer) Execute() {
-	request := gorequest.
-		New().
-		Timeout(time.Duration(c.Browser.ChromeTimeout)*time.Second).
-		Set("User-Agent", c.Browser.UserAgent)
+	client := &http.Client{
+		Timeout: time.Duration(c.Browser.ChromeTimeout) * time.Second,
+	}
+	req, err := http.NewRequest("GET", c.URL.String(), nil)
+	if err != nil {
+		log.Print(err.Error())
+		return
+	}
 
-	resp, _, errs := request.Get(c.URL.String()).End()
-	if errs != nil {
-		for _, err := range errs {
-			log.Print(err.Error())
-		}
+	req.Header.Set("User-Agent", c.Browser.UserAgent)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Print(err.Error())
 		return
 	}
 
