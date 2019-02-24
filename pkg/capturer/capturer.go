@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"../chrome"
@@ -18,13 +17,20 @@ import (
 type Capturer struct {
 	URL     *url.URL
 	Browser *chrome.Chrome
-	WG      *sync.WaitGroup
+}
+
+// NewCapturer - Construct a new Capturer
+func NewCapturer(imagePath string, url *url.URL) Capturer {
+	browser := chrome.NewChrome()
+	browser.SetScreenshotPath(imagePath)
+
+	capturer := Capturer{Browser: browser, URL: url}
+
+	return capturer
 }
 
 // Execute - Execute the screenshot capture
 func (c *Capturer) Execute() {
-	defer c.WG.Done()
-
 	request := gorequest.
 		New().
 		Timeout(time.Duration(c.Browser.ChromeTimeout)*time.Second).
