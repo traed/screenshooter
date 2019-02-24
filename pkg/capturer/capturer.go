@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"../chrome"
+	"github.com/traed/screenshooter/pkg/chrome"
 )
 
 //Capturer - Struct that captures screenshots

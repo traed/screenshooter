@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"../pkg/capturer"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/traed/screenshooter/pkg/capturer"
 )
 
 type message struct {

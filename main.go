@@ -5,7 +5,7 @@ import (
 	"log"
 	"path/filepath"
 
-	"../../api"
+	"github.com/traed/screenshooter/api"
 )
 
 func main() {

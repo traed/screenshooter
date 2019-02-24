@@ -25,10 +25,11 @@ type Chrome struct {
 // NewChrome - Factory function
 func NewChrome() *Chrome {
 	chrome := new(Chrome)
-	chrome.Path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 	chrome.Resolution = "1024x768"
 	chrome.ChromeTimeout = 10
 	chrome.UserAgent = "Screenshooter"
+
+	chrome.locateExecutable()
 
 	return chrome
 }
@@ -98,4 +99,41 @@ func (chrome *Chrome) ScreenshotURL(targetURL *url.URL, destination string) {
 	}
 
 	log.Printf("Screenshot taken from %s", targetURL.String())
+}
+
+func (chrome *Chrome) locateExecutable() {
+	if p, isSet := os.LookupEnv("CHROME_PATH"); isSet {
+		chrome.Path = p
+	}
+
+	_, err := os.Stat(chrome.Path)
+	if err != nil {
+		return
+	}
+
+	log.Print("Browser path not set or invalid. Performing search.")
+
+	paths := []string{
+		"/usr/bin/chromium",
+		"/usr/bin/chromium-browser",
+		"/usr/bin/google-chrome-stable",
+		"/usr/bin/google-chrome",
+		"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+		"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+		"/Applications/Chromium.app/Contents/MacOS/Chromium",
+		"C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
+	}
+
+	for _, path := range paths {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			continue
+		}
+
+		chrome.Path = path
+	}
+
+	// final check to ensure we actually found chrome
+	if chrome.Path == "" {
+		log.Fatal("Unable to locate a valid installation of Chrome to use.")
+	}
 }
