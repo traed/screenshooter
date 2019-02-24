@@ -12,16 +12,18 @@ import (
 
 // Server - Handles API requests
 type Server struct {
-	httpServer *http.Server
-	router     chi.Router
-	SavePath   string
+	httpServer    *http.Server
+	router        chi.Router
+	SavePath      string
+	ThrottleLimit int
+	Addr          string
 }
 
 // Start - Starts the Server
-func (s *Server) Start(addr string) {
+func (s *Server) Start() {
 	s.router = chi.NewRouter()
 	s.routes()
-	s.httpServer = &http.Server{Addr: addr, Handler: s.router}
+	s.httpServer = &http.Server{Addr: s.Addr, Handler: s.router}
 
 	if s.SavePath == "" {
 		log.Printf("SavePath not set. Defaulting to %s", os.TempDir())

@@ -17,6 +17,7 @@ import (
 type Capturer struct {
 	URL     *url.URL
 	Browser *chrome.Chrome
+	Dest    string
 }
 
 // NewCapturer - Construct a new Capturer
@@ -24,7 +25,10 @@ func NewCapturer(imagePath string, url *url.URL) Capturer {
 	browser := chrome.NewChrome()
 	browser.SetScreenshotPath(imagePath)
 
-	capturer := Capturer{Browser: browser, URL: url}
+	fname := SafeFileName(url.String())
+	dest := filepath.Join(browser.ScreenshotPath, fname)
+
+	capturer := Capturer{Browser: browser, URL: url, Dest: dest}
 
 	return capturer
 }
@@ -45,13 +49,17 @@ func (c *Capturer) Execute() {
 	}
 
 	finalURL := resp.Request.URL
-	fname := safeFileName(c.URL.String()) + ".png"
-	dest := filepath.Join(c.Browser.ScreenshotPath, fname)
 
-	c.Browser.ScreenshotURL(finalURL, dest)
+	c.Browser.ScreenshotURL(finalURL, c.Dest)
 }
 
-func safeFileName(str string) string {
+// GetFilename returns the formated filename used by the Capturer
+func (c *Capturer) GetFilename() string {
+	return filepath.Base(c.Dest)
+}
+
+// SafeFileName converts str into a filename with the
+func SafeFileName(str string) string {
 	name := strings.ToLower(str)
 	name = strings.Trim(name, " ")
 
@@ -69,5 +77,5 @@ func safeFileName(str string) string {
 		name = strings.Replace(name, "--", "-", -1)
 	}
 
-	return name
+	return name + ".png"
 }

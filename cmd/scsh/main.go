@@ -18,6 +18,9 @@ func main() {
 		return
 	}
 
-	server := api.Server{SavePath: path}
-	server.Start(*addr)
+	server := new(api.Server)
+	server.SavePath = path
+	server.ThrottleLimit = 15
+	server.Addr = *addr
+	server.Start()
 }
