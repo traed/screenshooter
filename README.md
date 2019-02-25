@@ -28,7 +28,7 @@ GET /screenshot/{filename}
 - Response is the image as a stream
 
 ## Scaling
-This project implements a Worker/Job queue in order to handle large amounts of requests. The number of workers and the size of the job queue can be fine tuned in the main.go file. 
+This project implements a Worker/Job queue in order to handle large amounts of requests. This ensures that the main thread isn't bogged down when downloading screenshots by dispatching that work to a different process. It also makes sure that the server won't crashes if too many request comes in at the same time by only allowing a certain number of workers to run at one time. If multiple instances of the project is run behind a load balancer the max number of jobs in the queue as well as the number of concurrant workers could be read via environment variables but for now they are hard coded in the main.go file.
 
 ## Credits:
 - Inspiration for screenshots: https://github.com/sensepost/gowitness
