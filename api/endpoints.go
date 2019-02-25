@@ -1,21 +1,19 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"image/png"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/traed/screenshooter/pkg/capturer"
+	"github.com/traed/screenshooter/pkg/job"
 )
 
 type message struct {
@@ -46,39 +44,24 @@ func (s *Server) handleGetScreenshot() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		filename := chi.URLParam(r, "filename")
 		filepath := s.SavePath + "/" + filename
+		pr, pw := io.Pipe()
+		job := job.NewGetScreenshotJob(pw, filepath)
 
-		_, err := os.Stat(filepath)
-		if os.IsNotExist(err) {
-			http.Error(w, "File not found.", 404)
-			return
-		} else if err != nil {
+		s.Dispatcher.JobQueue <- &job
+
+		content, err := ioutil.ReadAll(pr)
+		if err != nil {
 			http.Error(w, err.Error(), 500)
+		}
+
+		if len(content) == 0 {
+			http.Error(w, "File not found", 404)
 			return
 		}
 
-		file, err := os.Open(filepath)
-		defer file.Close()
-		if err != nil {
-			http.Error(w, "Unable to open file.", 500)
-			return
-		}
-
-		img, err := png.Decode(file)
-		if err != nil {
-			http.Error(w, "Unable to decode file.", 500)
-			return
-		}
-
-		buffer := new(bytes.Buffer)
-		err = png.Encode(buffer, img)
-		if err != nil {
-			http.Error(w, "Unable to create file buffer.", 500)
-			return
-		}
-
-		w.Header().Set("Content-Type", "image/jpeg")
-		w.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
-		if _, err := w.Write(buffer.Bytes()); err != nil {
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Content-Length", strconv.Itoa(len(content)))
+		if _, err := w.Write(content); err != nil {
 			http.Error(w, "Failed writing response.", 500)
 			return
 		}
@@ -109,10 +92,10 @@ func (s *Server) handleTakeScreenshot() http.HandlerFunc {
 				return
 			}
 
-			capturer := capturer.NewCapturer(s.SavePath, url)
-			urls = append(urls, r.Host+r.URL.RequestURI()+"/"+capturer.GetFilename())
+			job := job.NewTakeScreenshotJob(s.SavePath, url)
+			urls = append(urls, r.Host+r.URL.RequestURI()+"/"+job.GetFilename())
 
-			s.Dispatcher.JobQueue <- &capturer
+			s.Dispatcher.JobQueue <- &job
 		}
 
 		fmt.Fprintf(w, "%s", strings.Join(urls, "\n"))
