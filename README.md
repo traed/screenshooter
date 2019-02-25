@@ -1,10 +1,19 @@
 # Screenshooter
 Coding challenge for Detectify
 
-## Build and start container
+## Build
 ```
-docker build -t screenshooter -f build/Dockerfile .
-docker run -d --rm -p 8080:8080 -v ~/uploads:/root/uploads screenshooter
+$ docker build -t screenshooter -f build/Dockerfile .
+$ docker run -d --rm -p 8080:8080 -v ~/uploads:/root/uploads screenshooter
+```
+
+... or if you want to run it without docker:
+```
+$ git clone https://github.com/traed/screenshooter $GOPATH/src/github.com/traed/screenshooter
+$ cd $GOPATH/src/github.com/traed/screenshooter
+$ go get -d -v ./...
+$ go build -o bin/scsh main.go
+$ bin/scsh
 ```
 
 ## API
@@ -18,7 +27,11 @@ GET /screenshot/{filename}
 - Example: curl -X GET localhost:8080/screenshot/https-google.com.png
 - Response is the image as a stream
 
+## Scaling
+This project implements a Worker/Job queue in order to handle large amounts of requests. The number of workers and the size of the job queue can be fine tuned in the main.go file. 
+
 ## Credits:
 - Inspiration for screenshots: https://github.com/sensepost/gowitness
+- Inspiration for worker package: https://github.com/cahitbeyaz/job-worker
 - Installing chrome on alpine: https://github.com/Zenika/alpine-chrome/blob/master/Dockerfile
 - My fav router: https://github.com/go-chi/chi

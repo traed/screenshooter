@@ -11,12 +11,8 @@ import (
 )
 
 var (
-	// MaxWorker - os.Getenv("MAX_WORKERS")
-	MaxWorker = 3
-	// MaxQueue - os.Getenv("MAX_QUEUE")
-	MaxQueue = 20
-	// MaxLength -
-	MaxLength int64 = 2048
+	maxWorker = 3
+	maxQueue  = 20
 )
 
 func main() {
@@ -35,9 +31,7 @@ func main() {
 	server.SavePath = path
 	server.Addr = *addr
 
-	jobQueue := make(chan worker.Job, MaxQueue)
-	dispatcher := worker.NewDispatcher(MaxWorker, jobQueue)
-
+	dispatcher := worker.NewDispatcher(maxWorker, maxQueue)
 	server.Dispatcher = dispatcher
 
 	if i, err := strconv.Atoi(*thr); err != nil {
