@@ -32,4 +32,4 @@ EXPOSE 8080
 ENV CHROME_PATH /usr/bin/chromium-browser
 
 VOLUME ["/root/uploads"]
-CMD ["./scsh", "-d=./uploads"]
+CMD ["./scsh", "-d=./uploads", "-t=15"]

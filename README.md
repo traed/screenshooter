@@ -17,7 +17,7 @@ GET /screenshot/{filename}
 - {filename} should be one of the urls returned by the POST endpoint
 - Example: curl -X GET localhost:8080/screenshow/https-google.com.png
 
-Credits:
+## Credits:
 Inspiration for screenshots: https://github.com/sensepost/gowitness
 Installing chrome on alpine: https://github.com/Zenika/alpine-chrome/blob/master/Dockerfile
 My fav router: https://github.com/go-chi/chi
