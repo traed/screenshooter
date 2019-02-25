@@ -112,7 +112,7 @@ func (s *Server) handleTakeScreenshot() http.HandlerFunc {
 			capturer := capturer.NewCapturer(s.SavePath, url)
 			urls = append(urls, r.Host+r.URL.RequestURI()+"/"+capturer.GetFilename())
 
-			go capturer.Execute()
+			s.Dispatcher.JobQueue <- &capturer
 		}
 
 		fmt.Fprintf(w, "%s", strings.Join(urls, "\n"))

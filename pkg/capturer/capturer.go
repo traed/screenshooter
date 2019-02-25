@@ -33,14 +33,14 @@ func NewCapturer(imagePath string, url *url.URL) Capturer {
 }
 
 // Execute - Execute the screenshot capture
-func (c *Capturer) Execute() {
+func (c *Capturer) Execute() error {
 	client := &http.Client{
 		Timeout: time.Duration(c.Browser.ChromeTimeout) * time.Second,
 	}
 	req, err := http.NewRequest("GET", c.URL.String(), nil)
 	if err != nil {
 		log.Print(err.Error())
-		return
+		return err
 	}
 
 	req.Header.Set("User-Agent", c.Browser.UserAgent)
@@ -48,12 +48,14 @@ func (c *Capturer) Execute() {
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Print(err.Error())
-		return
+		return err
 	}
 
 	finalURL := resp.Request.URL
 
 	c.Browser.ScreenshotURL(finalURL, c.Dest)
+
+	return nil
 }
 
 // GetFilename returns the formated filename used by the Capturer

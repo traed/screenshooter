@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/traed/screenshooter/pkg/worker"
 )
 
 // Server - Handles API requests
@@ -17,6 +18,7 @@ type Server struct {
 	SavePath      string
 	ThrottleLimit int
 	Addr          string
+	Dispatcher    *worker.Dispatcher
 }
 
 // Start - Starts the Server
@@ -31,6 +33,8 @@ func (s *Server) Start() {
 	} else {
 		log.Printf("SavePath is %s", s.SavePath)
 	}
+
+	s.Dispatcher.Run()
 
 	log.Printf("Server ready on %s", s.httpServer.Addr)
 	err := s.httpServer.ListenAndServe()
