@@ -1,5 +1,4 @@
 # Screenshooter
-Coding challenge for Detectify
 
 ## Build
 ```
